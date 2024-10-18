@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/image/logo/au_logo.png">
+
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <title>Full Stack Developement #01</title>
+</head>
+
+<body class="bg">
+
+    <header>
+        <div class="nav">
+            <img src="/image/logo/au_foundation_logo.png" alt="">
+            <div class="search-container">
+                <input type="search" name="search" id="search-box">
+            </div>
+            <h1>Full Stack developement #01</h1>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="loading-text">0%</div>
+
+        <div id="user-info"></div>
+
+    </div>
+
+    <!-- Script code -->
+    <script>
+        // ********             *****
+        // splate screen || wlc screen || splace screen
+        const loadText = document.querySelector(".loading-text");
+        const bg = document.querySelector(".bg");
+
+        let load = 0;
+
+        const blurring = () => {
+            load++;
+            if (load > 99) clearInterval(int);
+            loadText.innerText = `${load}%`;
+            loadText.style.opacity = scale(load, 0, 100, 1, 0);
+            bg.style.filter = `blur(${scale(load, 0, 100, 30, 0)}px)`;
+            loadText.style.display = "none";
+        };
+
+
+        const scale = (num, in_min, in_max, out_min, out_max) => {
+            return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+        };
+
+        let int = setInterval(blurring, 30);
+
+        // *********        ********
+        // Searching Filter
+        // Fetching data from database.json using fetch API
+        fetch('database.json')
+            .then(response => response.json())
+            .then(data => {
+                const searchInput = document.getElementById('search-box');
+
+                // Function to filter user data based on the search input
+                const filterUsers = searchTerm => {
+                    return data.filter(user => {
+                        return (
+                            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            user.phone.includes(searchTerm) ||
+                            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                        );
+                    });
+                };
+
+                // Function to display filtered user information
+                const displayFilteredUsers = searchTerm => {
+                    const filteredData = filterUsers(searchTerm);
+                    console.log(searchTerm);
+
+                    // Clear previous results
+                    const userInfoDiv = document.getElementById('user-info');
+                    userInfoDiv.innerHTML = '';
+
+                    filteredData.forEach(user => {
+                        // Create elements to display user information
+                        const userDiv = document.createElement('div');
+                        userDiv.classList.add('user-item');
+                        userDiv.innerHTML = `
+          <div class='card'>
+              <div class="profile-pic">
+                  <img src="${user.image}" alt="${user.name}" width="100" height="100">
+              </div>
+              <h3>${user.name}</h3>
+              <p>Phone: ${user.phone}</p>
+              <p>Email: ${user.email}</p>  
+              <div class="contact-box">
+                  <button><a href="tel:${user.phone}">Call Now</a></button>
+                  <a href="mailto:${user.email}"><i class='bx bxs-envelope' style='color:#6e2867'  ></i></a>
+              </div>
+          </div>
+        `;
+                        userInfoDiv.appendChild(userDiv);
+                    });
+                };
+
+                // Event listener for input change (search)
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.trim();
+                    displayFilteredUsers(searchTerm);
+                });
+
+                // Display all users initially
+                displayFilteredUsers('');
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+
+
+
+        // ***********          *********
+        // Fetch data from database.json using fetch API
+
+        fetch('database.json')
+            .then(response => response.json())
+            .then(data => {
+                const userInfoDiv = document.getElementById('user-info');
+
+
+                // Map through the data and create HTML elements to display user information
+                const usersHTML = data.map(user => `
+            <div class='card'>
+                <div class="profile-pic">
+                    <img src="${user.image}" alt="${user.name}" width="100" height="100">
+                </div>
+                <h3>${user.name}</h3>
+                <p>Phone: ${user.phone}</p>
+                <p>Email: ${user.email}</p>  
+                <div class="contact-box">
+                    <button><a href="tel:${user.phone}">Call Now</a></button>
+                    <a href="mailto:${user.email}"><i class='bx bxs-envelope' style='color:#6e2867'  ></i></a>
+                </div>
+            </div>
+          `).join('');
+
+                // Insert the generated HTML into the user-info div
+                userInfoDiv.innerHTML = usersHTML;
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    </script>
+</body>
+
+</html>
